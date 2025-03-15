@@ -30,6 +30,21 @@ type TeamsListResponse struct {
 // TeamsListOptions specifies the optional parameters to the
 // TeamsService.List method.
 type TeamsListOptions struct {
+	// Search by team name (2 to 255 characters)
+	Search string `json:"search,omitempty"`
+
+	// Filter by project identifiers (comma-separated)
+	ProjectIDs string `json:"projectIds,omitempty"`
+
+	// Filter by project roles (comma-separated)
+	ProjectRoles string `json:"projectRoles,omitempty"`
+
+	// Filter by language identifiers (comma-separated)
+	LanguageIDs string `json:"languageIds,omitempty"`
+
+	// Filter by group identifiers (comma-separated)
+	GroupIDs string `json:"groupIds,omitempty"`
+
 	// Sort teams by specified field.
 	// Enum: id, name, createdAt, updatedAt. Default: id.
 	OrderBy string `json:"orderBy,omitempty"`
@@ -45,6 +60,22 @@ func (o *TeamsListOptions) Values() (url.Values, bool) {
 	}
 
 	v, _ := o.ListOptions.Values()
+
+	if o.Search != "" {
+		v.Add("search", o.Search)
+	}
+	if o.ProjectIDs != "" {
+		v.Add("projectIds", o.ProjectIDs)
+	}
+	if o.ProjectRoles != "" {
+		v.Add("projectRoles", o.ProjectRoles)
+	}
+	if o.LanguageIDs != "" {
+		v.Add("languageIds", o.LanguageIDs)
+	}
+	if o.GroupIDs != "" {
+		v.Add("groupIds", o.GroupIDs)
+	}
 
 	if o.OrderBy != "" {
 		v.Add("orderBy", o.OrderBy)

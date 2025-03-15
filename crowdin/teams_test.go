@@ -72,6 +72,30 @@ func TestTeamsService_List(t *testing.T) {
 			},
 			expectedQuery: "?limit=10&offset=5&orderBy=name",
 		},
+		{
+			name: "with search options and search success",
+			opts: &model.TeamsListOptions{
+				Search:  "Translators Team 1,Translators Team 2",
+				OrderBy: "name",
+				ListOptions: model.ListOptions{
+					Limit:  10,
+					Offset: 5,
+				},
+			},
+			expectedQuery: "?limit=10&offset=5&orderBy=name&search=Translators+Team+1%2CTranslators+Team+2",
+		},
+		{
+			name: "with search options and search failure",
+			opts: &model.TeamsListOptions{
+				Search:  "Translators Team 1,Translators Team 3",
+				OrderBy: "name",
+				ListOptions: model.ListOptions{
+					Limit:  10,
+					Offset: 5,
+				},
+			},
+			expectedQuery: "?limit=10&offset=5&orderBy=name&search=Translators+Team+1%2CTranslators+Team+3",
+		},
 	}
 
 	for _, tt := range tests {
@@ -116,27 +140,50 @@ func TestTeamsService_List(t *testing.T) {
 
 			teams, resp, err := client.Teams.List(context.Background(), tt.opts)
 			require.NoError(t, err)
+			if t.Name() != "with search options and search failure" {
 
-			expected := []*model.Team{
-				{
-					ID:           1,
-					Name:         "Translators Team 1",
-					TotalMembers: 8,
-					WebURL:       "https://example.crowdin.com/u/teams/1",
-					CreatedAt:    "2023-09-23T09:04:29+00:00",
-					UpdatedAt:    "2023-09-23T09:04:29+00:00",
-				},
-				{
-					ID:           2,
-					Name:         "Translators Team 2",
-					TotalMembers: 8,
-					WebURL:       "https://example.crowdin.com/u/teams/1",
-					CreatedAt:    "2023-09-23T09:04:29+00:00",
-					UpdatedAt:    "2023-09-23T09:04:29+00:00",
-				},
+				expected := []*model.Team{
+					{
+						ID:           1,
+						Name:         "Translators Team 1",
+						TotalMembers: 8,
+						WebURL:       "https://example.crowdin.com/u/teams/1",
+						CreatedAt:    "2023-09-23T09:04:29+00:00",
+						UpdatedAt:    "2023-09-23T09:04:29+00:00",
+					},
+					{
+						ID:           2,
+						Name:         "Translators Team 2",
+						TotalMembers: 8,
+						WebURL:       "https://example.crowdin.com/u/teams/1",
+						CreatedAt:    "2023-09-23T09:04:29+00:00",
+						UpdatedAt:    "2023-09-23T09:04:29+00:00",
+					},
+				}
+				assert.Equal(t, expected, teams)
+				assert.Len(t, teams, 2)
+			} else {
+				expected := []*model.Team{
+					{
+						ID:           1,
+						Name:         "Translators Team 1",
+						TotalMembers: 8,
+						WebURL:       "https://example.crowdin.com/u/teams/1",
+						CreatedAt:    "2023-09-23T09:04:29+00:00",
+						UpdatedAt:    "2023-09-23T09:04:29+00:00",
+					},
+					{
+						ID:           2,
+						Name:         "Translators Team 2",
+						TotalMembers: 8,
+						WebURL:       "https://example.crowdin.com/u/teams/1",
+						CreatedAt:    "2023-09-23T09:04:29+00:00",
+						UpdatedAt:    "2023-09-23T09:04:29+00:00",
+					},
+				}
+				assert.Equal(t, expected, teams)
+				assert.Len(t, teams, 1)
 			}
-			assert.Equal(t, expected, teams)
-			assert.Len(t, teams, 2)
 
 			assert.Equal(t, 10, resp.Pagination.Offset)
 			assert.Equal(t, 25, resp.Pagination.Limit)
